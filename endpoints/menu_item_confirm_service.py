@@ -11,7 +11,7 @@ from openai import OpenAI
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 AWS_REGION = os.getenv("AWS_REGION", "ap-southeast-1")
 S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
-MENU_API_BASE_URL = os.getenv("MENU_API_BASE_URL", "http://127.0.0.1:8002")
+MENU_MICROSERVICE_URL = os.getenv("MENU_API_BASE_URL", "http://menu-backend.seasonedspoon:8002")
 
 openai_client = OpenAI(api_key=OPENAI_API_KEY)
 s3_client = boto3.client("s3", region_name=AWS_REGION)
