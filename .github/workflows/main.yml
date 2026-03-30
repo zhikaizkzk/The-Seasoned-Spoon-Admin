@@ -1,0 +1,31 @@
+name: Run Main Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+
+  # test:
+  #   needs: build
+  #   uses: ./.github/workflows/test.yml
+
+  push-to-ecr:
+    needs: build
+    uses: ./.github/workflows/push-to-ecr.yml
+    secrets: inherit
+
+  deploy-to-ecs:
+    needs: push-to-ecr
+    uses: ./.github/workflows/deploy-to-ecs.yml
+    secrets: inherit
+    with:
+      sha: ${{ needs.outputs.push-to-ecr.sha }} # Pass image URI as input
