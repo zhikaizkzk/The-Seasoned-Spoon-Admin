@@ -62,7 +62,7 @@ def upload_image_bytes_to_s3(image_bytes: bytes, item_name: str) -> str:
 
 async def save_candidate_item_to_db(candidate_item: dict, token: str | None = None) -> dict:
     url = f"{MENU_API_BASE_URL}/api/menu-item/confirm"
-
+    print(url)
     headers = {"Content-Type": "application/json"}
     if token:
         headers["Authorization"] = f"Bearer {token}"
