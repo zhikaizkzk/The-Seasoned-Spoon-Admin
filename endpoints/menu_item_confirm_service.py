@@ -47,12 +47,12 @@ def generate_menu_item_image_bytes(candidate_item: dict) -> bytes:
     return base64.b64decode(image_base64)
 
 
-def upload_image_bytes_to_s3(image_bytes: bytes, item_name: str) -> str:
-    key = f"public/public/img/{_slugify(item_name)}-{uuid.uuid4().hex}.png"
+def upload_image_bytes_to_s3(image_bytes: bytes, item_name: str,image_name :str) -> str:
+    key = f"public/img/{image_name}"
 
     s3_client.upload_fileobj(
         Fileobj=BytesIO(image_bytes),
-        Bucket="seasonedspoonimagesprod",
+        Bucket="seasonedspoonimages",
         Key=key,
         ExtraArgs={"ContentType": "image/png"},
     )
@@ -87,13 +87,14 @@ async def save_candidate_item_to_db(candidate_item: dict, token: str | None = No
 
 async def confirm_candidate_item(candidate_item: dict, token: str | None = None) -> dict:
     image_bytes = generate_menu_item_image_bytes(candidate_item)
-
+    pngname = f"{_slugify(candidate_item.get("name", "menu-item"))}-{uuid.uuid4().hex}.png"
     image_url = upload_image_bytes_to_s3(
         image_bytes=image_bytes,
         item_name=candidate_item.get("name", "menu-item"),
+        image_name = pngname
     )
 
-    candidate_item["image_url"] = image_url
+    candidate_item["image_url"] = pngname
 
     db_result = await save_candidate_item_to_db(candidate_item, token)
     print("db_result:", db_result)
