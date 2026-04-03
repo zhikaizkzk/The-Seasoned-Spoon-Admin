@@ -36,24 +36,21 @@ jobs:
       - name: Start app
         run: |
           nohup uvicorn main:app --host 0.0.0.0 --port 8007 > app.log 2>&1 &
+          echo $! > app.pid
+          sleep 5
 
-      - name: Wait for app
+      - name: Show app log
         run: |
-          for i in {1..30}; do
-            if curl -sf http://localhost:8007/docs > /dev/null; then
-              echo "App is ready"
-              exit 0
-            fi
-            echo "Waiting for app..."
-            sleep 2
-          done
-          echo "App failed to start"
-          cat app.log
-          exit 1
+          echo "===== app.log ====="
+          cat app.log || true
+
+      - name: Check listening port
+        run: |
+          ss -ltnp || true
 
       - name: Health check
         run: |
-          curl --fail http://localhost:8007/admin || true
+          curl -v http://127.0.0.1:8007/docs
 
       - name: Validate promptfoo config
         env:
