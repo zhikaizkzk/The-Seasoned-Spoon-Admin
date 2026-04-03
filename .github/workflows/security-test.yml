@@ -1,0 +1,70 @@
+name: Run Red Team
+
+on: workflow_call
+
+jobs:
+  redteam:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.22.0"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Start app
+        env:
+          AUTH_TOKEN: ${{ secrets.PROMPTFOO_AUTH_TOKEN }}
+        run: |
+          nohup uvicorn main:app --host 0.0.0.0 --port 8007 > app.log 2>&1 &
+          sleep 15
+
+      - name: Health check
+        run: |
+          curl --fail http://localhost:8007/admin || true
+
+      - name: Validate promptfoo config
+        env:
+          AUTH_TOKEN: ${{ secrets.PROMPTFOO_AUTH_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          npx promptfoo@latest validate -c ./promptfooconfig.yaml
+
+      - name: Run promptfoo red team
+        env:
+          AUTH_TOKEN: ${{ secrets.PROMPTFOO_AUTH_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          npx promptfoo@latest redteam run -c ./promptfooconfig.yaml
+
+      - name: Upload red team artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: promptfoo-redteam-artifacts
+          path: |
+            app.log
+            promptfooconfig.yaml
+            security-test.yaml
+            .promptfoo/**
