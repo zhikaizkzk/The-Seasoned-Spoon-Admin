@@ -9,3 +9,4 @@ class MenuItemCreate(BaseModel):
     name: str
     price: Optional[float] = None
     subcategory_id: Optional[int] = None
+    preview_image_name: Optional[str] = None
