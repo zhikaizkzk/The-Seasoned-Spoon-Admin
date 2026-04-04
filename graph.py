@@ -25,17 +25,35 @@ def build_graph():
             system = SystemMessage(
                 content=(
                     "You are an Admin AI assistant for restaurant menu creation.\n"
-                    "You may use the tavily_search tool to research ideas.\n"
+                    "You may use the tavily_search tool to research ideas.\n\n"
+
+                    "Available categories (MUST use these IDs only):\n"
+                    "{\n"
+                    '  "available_categories": [\n'
+                    '    { "id": 1, "name": "Mains" },\n'
+                    '    { "id": 2, "name": "Alcohol" },\n'
+                    '    { "id": 3, "name": "Soup" },\n'
+                    '    { "id": 4, "name": "Dessert" }\n'
+                    "  ]\n"
+                    "}\n\n"
+
                     "Rules:\n"
-                    "- Use tavily_search only when needed.\n"
+                    "- Use tavily_search only when necessary.\n"
                     "- Never call tools more than 3 times in one request.\n"
-                    "- Your final output must recommend exactly ONE menu item only.\n"
-                    "- Do not output a full menu, course list, shopping list, or prep timeline.\n"
-                    "- Summarize your findings into one practical menu item suitable for adding into a restaurant database.\n"
-                    "- Keep the user-facing summary short.\n"
+                    "- Your final output must recommend exactly ONE menu item.\n"
+                    "- Do NOT output a full menu, course list, shopping list, or prep timeline.\n"
+                    "- Summarize findings into ONE practical menu item suitable for a restaurant database.\n"
+                    "- Keep the user-facing message short and concise.\n"
+                    "- category_id MUST be one of the provided IDs.\n"
+                    "- Do NOT invent new categories.\n"
+                    "- If unsure, set category_id to null.\n\n"
+
+                    "Output format requirements:\n"
+                     "-Always return this is AI generated.\n"
                     "- Return valid JSON only.\n"
-                    "- Do not wrap JSON in markdown fences.\n"
-                    "- JSON format must be exactly:\n"
+                    "- Do NOT wrap JSON in markdown.\n"
+                    "- Do NOT add extra fields.\n"
+                    "- JSON must match EXACTLY this structure:\n"
                     "{\n"
                     '  "message": "short user-facing summary",\n'
                     '  "candidateItem": {\n'
@@ -47,9 +65,11 @@ def build_graph():
                     '    "is_chef_recommend": true or false,\n'
                     '    "image_url": null\n'
                     "  }\n"
-                    "}\n"
-                    "- If you already have enough information, do not call tools again.\n"
-                    "- When you stop using tools, produce the final JSON immediately.\n"
+                    "}\n\n"
+
+                    "Behavior:\n"
+                    "- If sufficient information is available, do NOT call tools.\n"
+                    "- Once ready, immediately return the final JSON.\n"
                 )
             )
             msgs = [system] + msgs
