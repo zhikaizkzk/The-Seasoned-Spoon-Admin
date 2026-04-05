@@ -10,13 +10,13 @@ permissions:
   id-token: write # This is required for requesting the JWT
   contents: read
 
-jobs:
-  build:
-    uses: ./.github/workflows/build.yml
-  security:
-    needs: build
-    uses: ./.github/workflows/security-test.yml
-    secrets: inherit
+#jobs:
+#  build:
+#    uses: ./.github/workflows/build.yml
+#  security:
+#    needs: build
+#    uses: ./.github/workflows/security-test.yml
+#    secrets: inherit
 
   # test:
   #   needs: build

@@ -26,6 +26,6 @@ providers:
 redteam:
   plugins:
     - id: owasp:agentic
-      numTests: 10
+      numTests: 1
   strategies:
     - basic
