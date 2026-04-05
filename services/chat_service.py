@@ -64,7 +64,7 @@ async def run_chat(
 
     initial_state: State = {
         "messages": msgs,
-        "tool_loops": state.get("tool_loops", 0),
+        "tool_loops": state.get("tool_loops", 1),
         "route": state.get("route", ""),
         "state": state.get("state", {}),
     }
