@@ -73,7 +73,7 @@ jobs:
           PROMPTFOO_API_KEY: ${{ secrets.PROMPTFOO_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
-          npx promptfoo@latest redteam run -c ./promptfooconfig.yaml
+          npx promptfoo@latest redteam run -c ./promptfooconfig.yaml --max-concurrency 20
 
       - name: Upload red team artifacts
         if: always()
