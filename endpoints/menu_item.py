@@ -153,7 +153,7 @@ async def confirm_candidate_item(
     print("i am going")
     print(candidate_item["image_url"])
     db_result = await save_candidate_item_to_db(candidate_item, token)
-
+    final_image_url = await move_preview_to_img(preview_image_name)
     final_image_url = (
         db_result.get("imageUrl")
         or db_result.get("image_url")
@@ -171,3 +171,25 @@ async def confirm_candidate_item(
         "name": db_result.get("name"),
         "image_url": final_image_url,
     }
+async def move_preview_to_img(preview_image_name: str) -> str:
+    source_key = f"public/previews/{preview_image_name}"
+    destination_key = f"public/img/{preview_image_name}"
+
+    # Copy
+    s3_client.copy_object(
+        Bucket=S3_BUCKET_NAME,
+        CopySource={
+            "Bucket": S3_BUCKET_NAME,
+            "Key": source_key
+        },
+        Key=destination_key
+    )
+
+    # Delete original
+    s3_client.delete_object(
+        Bucket=S3_BUCKET_NAME,
+        Key=source_key
+    )
+
+    # Return new URL
+    return f"https://{S3_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{destination_key}"
