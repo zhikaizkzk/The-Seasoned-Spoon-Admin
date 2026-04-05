@@ -24,11 +24,9 @@ providers:
       transformResponse: "json.message ?? json.response ?? json.error ?? text"
 
 redteam:
-  strategies:
-    - prompt-injection
   plugins:
-    - bfla
-    - bola
-    - pii:direct
-    - excessive-agency
-    - system-prompt-override
+    - owasp:agentic
+  strategies:
+    #- jailbreak
+    - prompt-injection
+    - crescendo
