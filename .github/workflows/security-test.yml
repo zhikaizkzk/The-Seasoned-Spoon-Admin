@@ -65,7 +65,7 @@ jobs:
       - name: Run promptfoo red team
         env:
           AUTH_TOKEN: ${{ secrets.PROMPTFOO_AUTH_TOKEN }}
-          PROMPTFOO_REMOTE_GENERATION_URL: https://promptfoo.app
+          PROMPTFOO_REMOTE_GENERATION_URL: https://api.promptfoo.app
         run: |
           npx promptfoo@latest redteam run -c ./promptfooconfig.yaml
 
