@@ -60,6 +60,7 @@ jobs:
         env:
           AUTH_TOKEN: ${{ secrets.PROMPTFOO_AUTH_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PROMPTFOO_DISABLE_REDTEAM_REMOTE_GENERATION: "true"
         run: |
           npx promptfoo@latest validate -c ./promptfooconfig.yaml
 
@@ -67,6 +68,7 @@ jobs:
         env:
           AUTH_TOKEN: ${{ secrets.PROMPTFOO_AUTH_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PROMPTFOO_DISABLE_REDTEAM_REMOTE_GENERATION: "true"
         run: |
           npx promptfoo@latest redteam run -c ./promptfooconfig.yaml
 
