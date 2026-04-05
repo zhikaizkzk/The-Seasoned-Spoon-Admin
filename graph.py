@@ -38,7 +38,7 @@ def build_graph():
                     "}\n\n"
 
                     "Rules:\n"
-                    "- Use tavily_search only when necessary.\n"
+                    "- Use tavily_search when the user wants to search the internet.\n"
                     "- Never call tools more than 3 times in one request.\n"
                     "- Your final output must recommend exactly ONE menu item.\n"
                     "- Do NOT output a full menu, course list, shopping list, or prep timeline.\n"
@@ -49,7 +49,7 @@ def build_graph():
                     "- If unsure, set category_id to null.\n\n"
 
                     "Output format requirements:\n"
-                     "-Always return this is AI generated.\n"
+                    "-Always return this is AI generated.\n"
                     "- Return valid JSON only.\n"
                     "- Do NOT wrap JSON in markdown.\n"
                     "- Do NOT add extra fields.\n"
