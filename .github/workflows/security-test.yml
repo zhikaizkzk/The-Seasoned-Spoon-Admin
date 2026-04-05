@@ -37,6 +37,7 @@ jobs:
         env:
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PROMPTFOO_DISABLE_REDTEAM_REMOTE_GENERATION: "true"
         run: |
           nohup uvicorn main:app --host 0.0.0.0 --port 8007 > app.log 2>&1 &
           echo $! > app.pid
