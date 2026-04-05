@@ -11,14 +11,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.13"
 
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: "22.22.0"
+          node-version: "22"
 
       - name: Cache pip
         uses: actions/cache@v4
@@ -40,7 +40,7 @@ jobs:
         run: |
           nohup uvicorn main:app --host 0.0.0.0 --port 8007 > app.log 2>&1 &
           echo $! > app.pid
-          sleep 5
+          sleep 10
 
       - name: Show app log
         run: |
@@ -53,19 +53,25 @@ jobs:
 
       - name: Health check
         run: |
-          curl -v http://127.0.0.1:8007/docs
+          curl -fsS http://127.0.0.1:8007/docs > /dev/null
+
+      - name: Install Promptfoo auth
+        env:
+          PROMPTFOO_API_KEY: ${{ secrets.PROMPTFOO_API_KEY }}
+        run: |
+          npx promptfoo@latest auth login -k "$PROMPTFOO_API_KEY"
 
       - name: Validate promptfoo config
         env:
-          AUTH_TOKEN: ${{ secrets.PROMPTFOO_AUTH_TOKEN }}
+          PROMPTFOO_API_KEY: ${{ secrets.PROMPTFOO_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           npx promptfoo@latest validate -c ./promptfooconfig.yaml
 
       - name: Run promptfoo red team
         env:
-          AUTH_TOKEN: ${{ secrets.PROMPTFOO_AUTH_TOKEN }}
-          PROMPTFOO_REMOTE_GENERATION_URL: https://api.promptfoo.app
+          PROMPTFOO_API_KEY: ${{ secrets.PROMPTFOO_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           npx promptfoo@latest redteam run -c ./promptfooconfig.yaml
 
@@ -79,3 +85,8 @@ jobs:
             promptfooconfig.yaml
             security-test.yaml
             .promptfoo/**
+
+      - name: Stop app
+        if: always()
+        run: |
+          if [ -f app.pid ]; then kill $(cat app.pid) || true; fi
