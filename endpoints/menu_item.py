@@ -15,6 +15,8 @@ async def confirm_menu_item_with_image(payload: MenuItemCreate):
             raise HTTPException(status_code=400, detail="preview_image_name is required.")
 
         candidate_item = payload.dict()
+        print(candidate_item)
+        print('checkkkkkkkkkkkkkkkkkkk')
         preview_image_name = candidate_item.pop("preview_image_name", None)
         result = await confirm_candidate_item(candidate_item,preview_image_name)
         print(result)
@@ -111,6 +113,7 @@ async def save_candidate_item_to_db(candidate_item: dict, token: str | None = No
         "image_url": candidate_item.get("image_url"),
     }
     print("going to save")
+    print(candidate_item.get("image_url"))
     print(url)
     async with httpx.AsyncClient(timeout=60.0) as client:
         response = await client.post(url, json=payload, headers=headers)
@@ -145,15 +148,17 @@ async def confirm_candidate_item(
     preview_image_name: str,
     token: str | None = None
 ) -> dict:
+    # Reuse the approved preview image instead of generating again
+    candidate_item["image_url"] = preview_image_name
     print("i am going")
-    print(preview_image_name)
-    # 🚀 Move image from previews → img
-    final_image_url = await move_preview_to_img(preview_image_name)
-
-    # Update payload with final image location
-    candidate_item["image_url"] = final_image_url
-
+    print(candidate_item["image_url"])
     db_result = await save_candidate_item_to_db(candidate_item, token)
+
+    final_image_url = (
+        db_result.get("imageUrl")
+        or db_result.get("image_url")
+        or f"https://{S3_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/public/previews/{preview_image_name}"
+    )
 
     return {
         "db_result": db_result,
@@ -166,26 +171,3 @@ async def confirm_candidate_item(
         "name": db_result.get("name"),
         "image_url": final_image_url,
     }
-
-async def move_preview_to_img(preview_image_name: str) -> str:
-    source_key = f"public/previews/{preview_image_name}"
-    destination_key = f"public/img/{preview_image_name}"
-
-    # Copy
-    s3_client.copy_object(
-        Bucket=S3_BUCKET_NAME,
-        CopySource={
-            "Bucket": S3_BUCKET_NAME,
-            "Key": source_key
-        },
-        Key=destination_key
-    )
-
-    # Delete original
-    s3_client.delete_object(
-        Bucket=S3_BUCKET_NAME,
-        Key=source_key
-    )
-
-    # Return new URL
-    return f"https://{S3_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{destination_key}"
