@@ -13,17 +13,25 @@ permissions:
 jobs:
   build:
     uses: ./.github/workflows/build.yml
-#  security:
-#    needs: build
-#    uses: ./.github/workflows/security-test.yml
-#    secrets: inherit
+    secrets: inherit
 
-  # test:
+  unit-tests:
+    needs: build
+    uses: ./.github/workflows/unit-tests.yml
+    secrets: inherit
+
+  # security:
   #   needs: build
-  #   uses: ./.github/workflows/test.yml
+  #   uses: ./.github/workflows/security-test.yml
+  #   secrets: inherit
+
+  # test-model-evals:
+  #   needs: unit-tests
+  #   uses: ./.github/workflows/model-evals.yml
+  #   secrets: inherit
 
   push-to-ecr:
-    needs: build
+    needs: unit-tests
     uses: ./.github/workflows/push-to-ecr.yml
     secrets: inherit
 
