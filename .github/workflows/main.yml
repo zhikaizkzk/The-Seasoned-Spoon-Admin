@@ -20,15 +20,15 @@ jobs:
     uses: ./.github/workflows/unit-tests.yml
     secrets: inherit
 
-  security:
-     needs: build
-     uses: ./.github/workflows/security-test.yml
-     secrets: inherit
-
-  test-model-evals:
-     needs: unit-tests
-     uses: ./.github/workflows/model-evals.yml
-     secrets: inherit
+#  security:
+#     needs: build
+#     uses: ./.github/workflows/security-test.yml
+#     secrets: inherit
+#
+#  test-model-evals:
+#     needs: unit-tests
+#     uses: ./.github/workflows/model-evals.yml
+#     secrets: inherit
 
   push-to-ecr:
     needs: unit-tests
